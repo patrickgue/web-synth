@@ -1,0 +1,102 @@
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>WebSynth</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body ng-app="app" ng-controller="AppCtrl">
+
+  <div class="controlls">
+    <button ng-click="playPause()">{{playPauseLabel}}</button> {{playIndex}}
+    <input type="range" min=60 max=240 ng-model="speed" /> {{speed}} bpm
+
+  </div>
+
+  {{selectedChanel}}
+      
+  <table>
+    <thead>
+      <tr>
+        <th>Chanel</th>
+        <th>Type</th>
+        <th>Filter</th>
+        <th>Filt. Freq.</th>
+        <th>Gain</th>
+        <th>Edit</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="chanel in chanels">
+        <td ng-click="setChanel($index)" ng-class="{active:(selectedChanel == $index)}">{{$index + 1}}</td>
+        <td>
+          <select ng-model="oscillators[$index].oscillator.type">
+            <option>sine</option>
+            <option>square</option>
+            <option>triangle</option>
+            <option>sawtooth</option>
+          </select>
+        </td>
+        <td>
+          <select ng-model="oscillators[$index].filter.type">
+            <option>allpass</option>
+            <option>lowpass</option>
+            <option>highpass</option>
+            <option>bandpass</option>
+            <option>lowshelf</option>
+            <option>highshelf</option>
+            <option>peaking</option>
+            <option>notch</option>
+            
+          </select>
+        </td>
+        <td>
+          <input type="range" min=0 max=5000 step=100 ng-model="oscillators[$index].filter.frequency.value"/>
+          {{oscillators[$index].filter.frequency.value}}
+        </td>
+        <td>
+          <input type="range" min=0 max=1 step=0.05 ng-model="oscillators[$index].gain.gain.value" /> gain {{oscillators[$index].gain.gain.value}}</td>
+        <td>
+          <button ng-click="editNotes($index);">Edit</button>
+        </td>
+        
+      </tr>
+    </tbody>
+  </table>
+  <button ng-click="exportFile()">export</button>
+  <button ng-click="loadFile()">load</button>
+  <textarea ng-model="loadStr" placeholder="Enter JSON here for loading"></textarea>
+  <textarea ng-model="exportStr" placeholder="Copy JSON from here after export"></textarea>
+
+
+  <div ng-show="editor" id="editor">
+    <button ng-click="editor = false;">&times;</button>
+    <br/>
+    <button ng-click="addBar()">Add Bar</button>
+    <table>
+      <tr>
+        <td>none</td>
+        <td ng-repeat="note in chanels[selectedChanel].notes track by $index">
+          <div ng-click="chanels[selectedChanel].notes[$index] = 'none'" ng-class="{active:note == 'none'}">n</div>
+        </td>
+      </tr>
+      <tr>
+        <td>stop</td>
+        <td ng-repeat="note in chanels[selectedChanel].notes track by $index">
+          <div class="note" ng-click="chanels[selectedChanel].notes[$index] = 'stop'" ng-class="{active:note == 'stop'}">s</div>
+        </td>
+      </tr>
+      <tr ng-repeat="(key, value) in notes">
+        <td>{{key}}</td>
+        <td ng-repeat="note in chanels[selectedChanel].notes track by $index">
+          <div class="note" ng-click="chanels[selectedChanel].notes[$index] = key;" ng-class="{active:note == key, bar:($index+1) % 8 == 0}">{{key}}</div>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <script src="lib/angular.min.js"></script>
+  <script src="synth.js"></script>
+</body>
+
+</html>
