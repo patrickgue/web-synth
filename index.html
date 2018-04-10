@@ -7,15 +7,15 @@
 </head>
 
 <body ng-app="app" ng-controller="AppCtrl">
-
+  <h1>websynth</h1>
   <div class="controlls">
-    <button ng-click="playPause()">{{playPauseLabel}}</button> {{playIndex}}
+    <button ng-click="playPause()">{{playPauseLabel}}</button> {{playIndex / 4 | number:0}}
     <input type="range" min=60 max=240 ng-model="speed" /> {{speed}} bpm
 
   </div>
 
   {{selectedChanel}}
-      
+
   <table>
     <thead>
       <tr>
@@ -48,19 +48,18 @@
             <option>highshelf</option>
             <option>peaking</option>
             <option>notch</option>
-            
+
           </select>
         </td>
         <td>
-          <input type="range" min=0 max=5000 step=100 ng-model="oscillators[$index].filter.frequency.value"/>
-          {{oscillators[$index].filter.frequency.value}}
+          <input type="range" min=0 max=5000 step=100 ng-model="oscillators[$index].filter.frequency.value" /> {{oscillators[$index].filter.frequency.value}} Hz
         </td>
         <td>
-          <input type="range" min=0 max=1 step=0.05 ng-model="oscillators[$index].gain.gain.value" /> gain {{oscillators[$index].gain.gain.value}}</td>
+          <input type="range" min=0 max=1 step=0.05 ng-model="oscillators[$index].gain.gain.value" /> {{100*oscillators[$index].gain.gain.value | number:0}}%</td>
         <td>
           <button ng-click="editNotes($index);">Edit</button>
         </td>
-        
+
       </tr>
     </tbody>
   </table>
@@ -68,7 +67,6 @@
   <button ng-click="loadFile()">load</button>
   <textarea ng-model="loadStr" placeholder="Enter JSON here for loading"></textarea>
   <textarea ng-model="exportStr" placeholder="Copy JSON from here after export"></textarea>
-
 
   <div ng-show="editor" id="editor">
     <button ng-click="editor = false;">&times;</button>

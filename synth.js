@@ -8,11 +8,15 @@ const keyboardNoteMap = {
   "b" : "G3",
   "n" : "A3",
   "m" : "B3",
+  "," : "C4",
+  "." : "D4",
+
   "s" : "C#3",
   "d" : "D#3",
   "g" : "F#3",
   "h" : "G#3",
   "j" : "A#3",
+
   "q" : "C4",
   "w" : "D4",
   "e" : "E4",
@@ -23,6 +27,7 @@ const keyboardNoteMap = {
   "i" : "C5",
   "o" : "D5",
   "p" : "E5",
+
   "2" : "C#4",
   "3" : "D#4",
   "5" : "F#4",
@@ -108,13 +113,16 @@ angular.module("app",[]).controller("AppCtrl", function($scope,$interval) {
       $scope.oscillators[i] = {
         oscillator : $scope.context.createOscillator(),
         gain: $scope.context.createGain(),
+        stopGain : $scope.context.createGain(),
         filter: $scope.context.createBiquadFilter()
       };
       $scope.oscillators[i].oscillator.type = 'sine';
       $scope.oscillators[i].filter.type = 'allpass';
-      $scope.oscillators[i].oscillator.connect($scope.oscillators[i].filter)
+      $scope.oscillators[i].stopGain.gain.value = 0;
+      $scope.oscillators[i].oscillator.connect($scope.oscillators[i].stopGain)
+      $scope.oscillators[i].stopGain.connect($scope.oscillators[i].filter)
       $scope.oscillators[i].filter.connect($scope.oscillators[i].gain);
-      //$scope.oscillators[i].gain.connect($scope.context.destination);
+      $scope.oscillators[i].gain.connect($scope.context.destination);
       $scope.oscillators[i].oscillator.start();
       
     }     
@@ -135,11 +143,18 @@ angular.module("app",[]).controller("AppCtrl", function($scope,$interval) {
             //ignore
           }
           else if(note == "stop") {
-            try{$scope.oscillators[i].gain.disconnect($scope.context.destination);}catch(e){}
+            let intrv = setInterval(function() {
+              $scope.oscillators[i].stopGain.gain.value -= 0.01;
+              if($scope.oscillators[i].stopGain.gain.value <= 0) {
+                clearInterval(intrv);
+              }
+            },1)
           }
           else {
+            console.log($scope.oscillators[i].stopGain.gain.value);
+            $scope.oscillators[i].stopGain.gain.value = 1;
             $scope.oscillators[i].oscillator.frequency.value = $scope.notes[note];
-            $scope.oscillators[i].gain.connect($scope.context.destination)
+            //try{$scope.oscillators[i].gain.connect($scope.context.destination);} catch(e) {}
           }
         }
         $scope.playIndex++;
@@ -149,7 +164,7 @@ angular.module("app",[]).controller("AppCtrl", function($scope,$interval) {
     }
     else {
       for(let i = 0; i < 8; i++) {
-        try{$scope.oscillators[i].gain.disconnect($scope.context.destination);}catch(e){}
+        //try{$scope.oscillators[i].gain.disconnect($scope.context.destination);}catch(e){}
       }
       $interval.cancel($scope.playInterval);
       $scope.playPauseLabel = "play";
@@ -169,13 +184,20 @@ angular.module("app",[]).controller("AppCtrl", function($scope,$interval) {
 
   document.addEventListener("keydown", function(event) {
     console.log(notes[keyboardNoteMap[event.key]]);
+    $scope.oscillators[$scope.selectedChanel].stopGain.gain.value = 1;
     $scope.oscillators[$scope.selectedChanel].oscillator.frequency.value = notes[keyboardNoteMap[event.key]]
-    try{$scope.oscillators[$scope.selectedChanel].gain.connect($scope.context.destination);}catch(e){};
+    //try{$scope.oscillators[$scope.selectedChanel].gain.connect($scope.context.destination);}catch(e){};
   });
 
   document.addEventListener("keyup", function(event) {
-    if(event.key == " ")
-      try{$scope.oscillators[$scope.selectedChanel].gain.disconnect($scope.context.destination);}catch(e){}
+    if(event.key == ' '){
+      let intrv = setInterval(function() {
+        $scope.oscillators[$scope.selectedChanel].stopGain.gain.value -= 0.05;
+        if($scope.oscillators[$scope.selectedChanel].stopGain.gain.value <= 0.0) {
+          clearInterval(intrv);
+        }
+      },1)
+    }
   });
 
   $scope.setChanel = (ch) => $scope.selectedChanel = ch;

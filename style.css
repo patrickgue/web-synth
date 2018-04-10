@@ -1,5 +1,8 @@
 body {
   font-family: "Helvetica Neue";
+  background: linear-gradient(to bottom, #000, #222);
+  color: #fff;
+  height: 100vh;
 }
 
 
@@ -9,7 +12,7 @@ body {
   top: 0px;
   width: 100vw;
   height: 100vh;
-  background-color: #fff;
+  background-color: #222;
   overflow: auto;
 }
 
@@ -24,5 +27,9 @@ body {
 }
 
 .note.bar {
-  border-right: 1px solid #000;
+  border-right: 1px solid #fff;
+}
+
+table {
+  border-collapse: collapse;
 }
